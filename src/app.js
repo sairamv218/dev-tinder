@@ -36,21 +36,14 @@ app.post('/login', async (req, res) => {
         }
 
         // console.log('User found:', user);
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        // create a JWT token and send it in the response put it in cookie
-
-        console.log('Password valid:', isPasswordValid);
-
-        const token  = jwt.sign({ _id: user._id }, 'devtinder@2026', { expiresIn: '1h' });
-
-        res.cookie('token', token, { httpOnly: true });
-
+        const isPasswordValid = await user.validatePassword(password);
 
         if (!isPasswordValid) {
             return res.status(401).send('Invalid Credentials');
         }
 
+        const token = await user.getJWP();
+        res.cookie('token', token, { httpOnly: true });
         res.status(200).send('Login successful');
     } catch (err) {
         res.status(500).send('Internal Server Error');
