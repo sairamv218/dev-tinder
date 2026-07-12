@@ -3,6 +3,7 @@ const { connectDB } = require('./config/database');
 const app = express();
 const User = require('./models/user');
 const { userSignupValidation } = require('./utils/validation');
+const bcrypt = require('bcrypt');
 app.use(express.json());
 
 
@@ -15,11 +16,33 @@ connectDB().then(() => {
     console.log('Database connection failed', err);
 });
 
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).send('Invalid password');
+        }
+
+        res.status(200).send('Login successful');
+    } catch (err) {
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.post('/signup', async (req, res, next) => {
     console.log(req.body);
     try{
 
         userSignupValidation(req, res, next);
+
+        const passwordHash = await bcrypt.hash(req.body.password, 10);
 
         const user = new User({
         firstName: req.body.firstName,
@@ -28,7 +51,7 @@ app.post('/signup', async (req, res, next) => {
         gender: req.body.gender,
         email: req.body.email,
         mobile: req.body.mobile,
-        password: req.body.password
+        password: passwordHash
     })
 
     await user.save().then(() => {
