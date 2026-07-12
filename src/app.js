@@ -16,7 +16,7 @@ connectDB().then(() => {
 
 app.post('/signup', async (req, res) => {
     console.log(req.body);
-    const user = new User({ 
+    const user = new User({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         age: req.body.age,
@@ -33,8 +33,67 @@ app.post('/signup', async (req, res) => {
     });
 })
 
-app.use('/', (err,req,res,next)=>{
-    if(err){
-        res.status(500).send({error:err,message:'Internal Server Error'});
+app.put('/users/:id', async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+    )
+        .then((user) => {
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+            res.status(200).json(user);
+        })
+        .catch(() => {
+            res.status(400).send('Error updating user');
+        });
+});
+
+app.get('/users', async (req, res) => {
+    await User.find()
+        .then((users) => {
+            res.status(200).json(users);
+        })
+        .catch(() => {
+            res.status(500).send('Error fetching users');
+        });
+});
+
+
+app.patch('/users/:id', async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+    )
+        .then((user) => {
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+            res.status(200).json(user);
+        })
+        .catch(() => {
+            res.status(400).send('Error updating user');
+        });
+});
+
+app.delete('/users/:id', async (req, res) => {
+    await User.findByIdAndDelete(req.params.id)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).send('User not found');
+            }
+            res.status(200).send('User deleted successfully');
+        })
+        .catch(() => {
+            res.status(500).send('Error deleting user');
+        });
+});
+
+
+app.use('/', (err, req, res, next) => {
+    if (err) {
+        res.status(500).send({ error: err, message: 'Internal Server Error' });
     }
 })
