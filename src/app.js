@@ -6,6 +6,7 @@ const { userSignupValidation } = require('./utils/validation');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const {userAuth} = require('./middleware/auth');
 
 app.use(cookieParser());
 app.use(express.json());
@@ -20,17 +21,10 @@ connectDB().then(() => {
     console.log('Database connection failed', err);
 });
 
-app.get('/profile', async (req, res) => {
-    const cookie = req.cookies;
-    const idfromdecodedToken = jwt.verify(cookie.token, 'devtinder@2026');
-
-    console.log(idfromdecodedToken);
-
-    let user = await User.findById(idfromdecodedToken._id);
-
-    console.log(user);  
+app.get('/profile',userAuth, async (req, res) => {
+    let user = req.user;
     res.status(200).send(user);
-})
+});
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -41,9 +35,12 @@ app.post('/login', async (req, res) => {
             return res.status(404).send('Invalid Credentials');
         }
 
+        // console.log('User found:', user);
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         // create a JWT token and send it in the response put it in cookie
+
+        console.log('Password valid:', isPasswordValid);
 
         const token  = jwt.sign({ _id: user._id }, 'devtinder@2026', { expiresIn: '1h' });
 
