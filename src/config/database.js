@@ -7,7 +7,7 @@ const url  = "mongodb+srv://sairamv:vs%40225588@atomix.t6zeuhl.mongodb.net/devTi
 const connectDB = async () => {
     await mongoose.connect(url)
 }
-
+    
 module.exports = {connectDB};
 
 
