@@ -28,7 +28,17 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    profilePicture: {
+        type: String,
+        default: 'https://example.com/default-profile-picture.jpg'
+    },
+    skills:{
+        type: [String]
     }
+},
+{
+    timestamps: true
 });
 
 const User = mongoose.model('User', userSchema);
