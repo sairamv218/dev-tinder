@@ -2,6 +2,7 @@ const express = require('express');
 const { connectDB } = require('./config/database');
 const app = express();
 const User = require('./models/user');
+const { userSignupValidation } = require('./utils/validation');
 app.use(express.json());
 
 
@@ -14,9 +15,13 @@ connectDB().then(() => {
     console.log('Database connection failed', err);
 });
 
-app.post('/signup', async (req, res) => {
+app.post('/signup', async (req, res, next) => {
     console.log(req.body);
-    const user = new User({
+    try{
+
+        userSignupValidation(req, res, next);
+
+        const user = new User({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         age: req.body.age,
@@ -28,9 +33,11 @@ app.post('/signup', async (req, res) => {
 
     await user.save().then(() => {
         res.status(201).send('User created successfully');
-    }).catch((err) => {
-        res.status(400).send('Error creating user');
-    });
+    })
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
 })
 
 app.put('/users/:id', async (req, res) => {
