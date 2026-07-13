@@ -1,6 +1,7 @@
 const express = require('express');
 const usersRouter = express.Router();
 const User = require('../models/user');
+const { userAuth } = require('../middleware/auth'); 
 
 usersRouter.put('/users/:id', async (req, res) => {
     await User.findByIdAndUpdate(
@@ -19,7 +20,7 @@ usersRouter.put('/users/:id', async (req, res) => {
         });
 });
 
-usersRouter.get('/users', async (req, res) => {
+usersRouter.get('/users',userAuth, async (req, res) => {
     await User.find()
         .then((users) => {
             res.status(200).json(users);
