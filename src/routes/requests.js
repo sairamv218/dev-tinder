@@ -19,9 +19,9 @@ requestsRouter.post('/requests/send', userAuth, async (req, res) => {
    })
 
     const toUserPresent = await User.findById(req.body.toUserId)
-//    if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
-//     throw new Error("You can't create a connection with yourself");
-// }
+   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+    throw new Error("You can't create a connection with yourself");
+}
 
     if(!toUserPresent){
         throw new Error("To user not found,Please check the userid")
@@ -42,6 +42,34 @@ requestsRouter.post('/requests/send', userAuth, async (req, res) => {
    res.status(200).send("Connection requested succesfully")
  }
  catch(err){
+    res.status(500).send({ error: err.message, message: 'Internal Server Error' });
+ }
+})
+
+requestsRouter.post('/requests/review', userAuth, async (req, res) => {
+    try{
+
+    const allowedStatus = ['accepted','rejected'];
+    if(!(allowedStatus.includes(req.body.status))){
+        throw new Error("Status is not matching as per the policy")
+    }
+
+    const connectionRequest  = await ConnectionRequest.findOne({
+        _id:req.body.requestID,
+        toUserId:req.user._id,
+        status:"interested",
+    })
+    
+    console.log(connectionRequest);
+     if(!connectionRequest){
+        throw new Error("We are unable to process you request , Because there no interest connection on this user")
+    }
+
+    connectionRequest.status = req.body.status;
+    connectionRequest.save()
+   
+   res.status(200).send("Connection requested updated succesfully")
+ }catch(err){
     res.status(500).send({ error: err.message, message: 'Internal Server Error' });
  }
 })

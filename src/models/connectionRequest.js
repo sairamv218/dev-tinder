@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const connectionRequestSchema = new mongoose.Schema({
     fromUserId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'User', // Reference to the user object
         required: true
     },
     toUserId: {
@@ -20,16 +20,18 @@ const connectionRequestSchema = new mongoose.Schema({
     }
 });
 
-connectionRequestSchema.pre("save", function (next) {
-  connectionRequest = this
- if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
-    console.log("$$$$$$$$$$$$PRE$$$$$$$$$$4")
-    throw new Error("You can't create a connection with yourself");
-}
+// connectionRequestSchema.pre("save", function (next) {
+//   connectionRequest = this
+//  if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+//     console.log("$$$$$$$$$$$$PRE$$$$$$$$$$4")
+//     throw new Error("You can't create a connection with yourself");
+// }
 
-next();
+// next();
 
-})
+// })
+
+connectionRequestSchema.index({fromUserId:1,toUserId:1})
 
 const ConnectionRequest = mongoose.model('ConnectionRequest', connectionRequestSchema);
 module.exports = ConnectionRequest;
