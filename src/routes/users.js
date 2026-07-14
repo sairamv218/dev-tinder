@@ -53,8 +53,8 @@ usersRouter.get('/users/conections', userAuth, async (req, res) => {
                 if (r.fromUserId._id.toString === req.user._id.toString) {
                     return r.toUserId
                 }
-                return  r.fromUserId
-                
+                return r.fromUserId
+
             }
             )
             res.status(200).send({
@@ -68,6 +68,56 @@ usersRouter.get('/users/conections', userAuth, async (req, res) => {
         res.status(400).send(err.message);
     }
 })
+
+usersRouter.get('/users/feed', userAuth, async (req, res) => {
+    try {
+        // User should see all the other user cards except
+        // his own card
+        // somenone ignored him
+        // his active connections
+        // if he sent alreadt request to someone
+
+        const connections = await ConnectionRequest.find(
+            {
+                $or: [{
+                    fromUserId: req.user._id
+                },
+                {
+                    toUserId: req.user._id
+                }]
+            }
+        )
+        // .populate('fromUserId', ['firstName', 'lastName'])
+        //     .populate('toUserId', ['firstName', 'lastName'])
+
+
+        const notAllowed = new Set([]);
+        connections.forEach((r) => {
+            notAllowed.add(r.fromUserId.toString());
+            notAllowed.add(r.toUserId.toString());
+        })
+
+        const users = await User.find(
+            { _id: { $nin: [...notAllowed, req.user._id] } }
+        )
+
+        if ((connections || []).length > 0) {
+            res.status(200).send({
+                notAllowed: [...notAllowed ],
+                connections: connections,
+                users:users
+
+            })
+        } else {
+            throw new Error("You dont have anything in feed")
+        }
+
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+})
+
+
 
 usersRouter.put('/users/:id', async (req, res) => {
     await User.findByIdAndUpdate(
