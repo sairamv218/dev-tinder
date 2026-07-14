@@ -7,7 +7,6 @@ const ConnectionRequest = require('../models/connectionRequest')
 
 usersRouter.get('/users/requests', userAuth, async (req, res) => {
     try {
-        console.log("HIRAMMMMMMMMMMMMMMMMMM")
         const connectionRequests =
             await ConnectionRequest.find({ toUserId: req.user._id, status: 'interested' }).populate('fromUserId', ['firstName', 'lastName'])
 
@@ -30,6 +29,45 @@ usersRouter.get('/users/requests', userAuth, async (req, res) => {
     }
 
 });
+
+usersRouter.get('/users/conections', userAuth, async (req, res) => {
+    try {
+
+        const connections = await ConnectionRequest.find(
+            {
+                $or: [{
+                    fromUserId: req.user._id,
+                    status: "accepted"
+                },
+                {
+                    toUserId: req.user._id,
+                    status: "accepted"
+                }]
+            }
+        ).populate('fromUserId', ['firstName', 'lastName'])
+            .populate('toUserId', ['firstName', 'lastName'])
+
+        if ((connections || []).length > 0) {
+
+            const data = connections.map((r) => {
+                if (r.fromUserId._id.toString === req.user._id.toString) {
+                    return r.toUserId
+                }
+                return  r.fromUserId
+                
+            }
+            )
+            res.status(200).send({
+                connctions: data
+            })
+        } else {
+            throw new Error("You dont have any active connections")
+        }
+
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+})
 
 usersRouter.put('/users/:id', async (req, res) => {
     await User.findByIdAndUpdate(
