@@ -77,9 +77,9 @@ usersRouter.get('/users/feed', userAuth, async (req, res) => {
         // his active connections
         // if he sent alreadt request to someone
 
-        const page  = parseInt(req.query.page) || 1;
+        const page = parseInt(req.query.page) || 1;
         const perPage = parseInt(req.query.perpage) || 5;
-        skip = (page-1) * perPage;
+        skip = (page - 1) * perPage;
         perPage = perPage > 50 ? 50 : perPage
 
         const connections = await ConnectionRequest.find(
@@ -110,9 +110,9 @@ usersRouter.get('/users/feed', userAuth, async (req, res) => {
             res.status(200).send({
                 // notAllowed: [...notAllowed ],
                 // connections: connections,
-                skip:skip,
-                perPage:perPage,
-                users:users
+                skip: skip,
+                perPage: perPage,
+                users: users
 
             })
         } else {
@@ -123,8 +123,6 @@ usersRouter.get('/users/feed', userAuth, async (req, res) => {
         res.status(400).send(err.message);
     }
 })
-
-
 
 usersRouter.put('/users/:id', async (req, res) => {
     await User.findByIdAndUpdate(
