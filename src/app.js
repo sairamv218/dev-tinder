@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 require("dotenv").config();
+require("./utils/cronjob");
 
 const cookieParser = require('cookie-parser');
 const User = require('./models/user');
