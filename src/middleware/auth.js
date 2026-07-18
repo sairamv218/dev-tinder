@@ -5,7 +5,7 @@ const userAuth = async (req, res, next) => {
     try {
         const cookie = req.cookies;
         console.log('Cookie received in auth middleware:', cookie);
-        const idfromdecodedToken = jwt.verify(cookie.token, 'devtinder@2026');
+        const idfromdecodedToken = jwt.verify(cookie.token, process.env.JWT_SECRET);
         console.log('Decoded token in auth middleware:', idfromdecodedToken);
         let user = await User.findById(idfromdecodedToken._id);
 

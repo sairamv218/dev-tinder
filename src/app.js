@@ -1,6 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
+require("dotenv").config();
 
 const cookieParser = require('cookie-parser');
 const User = require('./models/user');
@@ -14,6 +16,7 @@ const {requestsRouter} = require('./routes/requests');
 
 
 const app = express();
+app.use(cors())
 app.use(cookieParser());
 app.use(express.json());
 app.use('/', authRouter);
@@ -21,10 +24,10 @@ app.use('/', usersRouter);
 app.use('/', profileRouter);
 app.use('/', requestsRouter);
 
-
+const port = process.env.PORT
 connectDB().then(() => {
     console.log('Database connected successfully');
-    app.listen(3000, () => {
+    app.listen(port, () => {
         console.log('Server is running on port 3000');
     });
 }).catch((err) => {
