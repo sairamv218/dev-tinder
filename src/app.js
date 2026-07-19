@@ -2,10 +2,12 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const http = require('http')
+
 require("dotenv").config();
 require("./utils/cronjob");
 
-const cookieParser = require('cookie-parser');
 const User = require('./models/user');
 const { connectDB } = require('./config/database');
 const { userSignupValidation } = require('./utils/validation');
@@ -14,7 +16,7 @@ const {authRouter} = require('./routes/auth');
 const {usersRouter} = require('./routes/users');
 const {profileRouter} = require('./routes/profile');
 const {requestsRouter} = require('./routes/requests');
-
+const initializeSocket = require('./utils/socket')
 
 const app = express();
 app.use(cors())
@@ -25,10 +27,12 @@ app.use('/', usersRouter);
 app.use('/', profileRouter);
 app.use('/', requestsRouter);
 
+const server =  http.createServer(app);
+initializeSocket()
 const port = process.env.PORT
 connectDB().then(() => {
     console.log('Database connected successfully');
-    app.listen(port, () => {
+    server.listen(port, () => {
         console.log('Server is running on port 3000');
     });
 }).catch((err) => {

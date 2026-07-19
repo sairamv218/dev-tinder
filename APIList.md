@@ -21,4 +21,9 @@
 -GET users/requests/received
 -GET users/feed - gets you the profiles of users on the platform
 
+## REAL TIME CHAT INTEGRATION 
+
+  BUILD UI FOR CHAT
+  Setup sockt io in BE 
+
 
